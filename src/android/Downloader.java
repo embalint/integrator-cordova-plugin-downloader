@@ -14,6 +14,7 @@ import org.apache.cordova.LOG;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import android.webkit.CookieManager;
 
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -172,7 +173,9 @@ public class Downloader extends CordovaPlugin {
 
   protected DownloadManager.Request deserialiseRequest(JSONObject obj) throws JSONException {
     DownloadManager.Request req = new DownloadManager.Request(Uri.parse(obj.getString("uri")));
+    String cookie = CookieManager.getInstance().getCookie(obj.getString("uri"));
 
+    req.addRequestHeader("cookie", cookie);
     req.setTitle(obj.optString("title"));
     req.setDescription(obj.optString("description"));
     req.setMimeType(obj.optString("mimeType", null));
