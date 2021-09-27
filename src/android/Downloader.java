@@ -114,7 +114,7 @@ public class Downloader extends CordovaPlugin {
         if(cursor.moveToFirst()){
             String downloadedTo = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
             String[] parsed = downloadedTo.split("/");
-            return parsed[parsed.length - 1].equals(obj.optString("title")) || parsed[parsed.length - 1].equals("testEmil");
+            return parsed[parsed.length - 1].equals(url);
         }
         return false;
     }
