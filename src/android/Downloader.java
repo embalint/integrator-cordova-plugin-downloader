@@ -71,9 +71,9 @@ public class Downloader extends CordovaPlugin {
 
       if(action.equals("download")){
           if(cordova.hasPermission(WRITE_EXTERNAL_STORAGE)){
-              if(!isFileExists(args.getJSONObject(0).optString("title"))) {
+              //if(!isFileExists(args.getJSONObject(0).optString("title"))) {
                 download(args.getJSONObject(0), callbackContext);
-              }
+              //}
           }
           else {
               cordova.requestPermission(this, DOWNLOAD_ACTION_PERMISSION_REQ_CODE, WRITE_EXTERNAL_STORAGE);
