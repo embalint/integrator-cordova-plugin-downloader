@@ -17,7 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.webkit.CookieManager;
-
+import android.database.Cursor;
 import java.io.File;
 
 import android.app.DownloadManager;
@@ -71,9 +71,12 @@ public class Downloader extends CordovaPlugin {
 
       if(action.equals("download")){
           if(cordova.hasPermission(WRITE_EXTERNAL_STORAGE)){
-              //if(!isFileExists(args.getJSONObject(0).optString("title"))) {
+             JSONObject params = args.getJSONObject(0).getJSONObject("destinationInExternalPublicDir");
+             if(linkExist(params.optString("subPath"))) {
                 download(args.getJSONObject(0), callbackContext);
-              //}
+             } else {
+                 Log.d("downloadInfo", "file already exist");
+             }
           }
           else {
               cordova.requestPermission(this, DOWNLOAD_ACTION_PERMISSION_REQ_CODE, WRITE_EXTERNAL_STORAGE);
@@ -94,8 +97,9 @@ public class Downloader extends CordovaPlugin {
     IntentFilter intentFilter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
 
     webView.getContext().registerReceiver(downloadReceiver, intentFilter);
-
-    this.downloadId = downloadManager.enqueue(request);
+    
+        this.downloadId = downloadManager.enqueue(request);
+    }
       
     // Don't return any result now, since status results will be sent when events come in from broadcast receiver
     PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
@@ -104,9 +108,15 @@ public class Downloader extends CordovaPlugin {
     return true;
   }
 
-  private boolean isFileExists(String filename){
-        File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + filename);
-        return folder.exists();
+  private boolean linkExist(String url) {
+        DownloadManager.Query query = new DownloadManager.Query();
+        Cursor cursor = downloadManager.query(query);
+        if(cursor.moveToFirst()){
+            String downloadedTo = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+            String[] parsed = downloadedTo.split("/");
+            return parsed[parsed.length - 1].equals(obj.optString("title")) || parsed[parsed.length - 1].equals("testEmil");
+        }
+        return false;
     }
     
   public void onDestroy() {
