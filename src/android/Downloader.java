@@ -11,10 +11,14 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.apache.cordova.LOG;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.webkit.CookieManager;
+
+import java.io.File;
 
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -67,7 +71,9 @@ public class Downloader extends CordovaPlugin {
 
       if(action.equals("download")){
           if(cordova.hasPermission(WRITE_EXTERNAL_STORAGE)){
-              download(args.getJSONObject(0), callbackContext);
+              if(!isFileExists(args.getJSONObject(0).optString("title"))) {
+                download(args.getJSONObject(0), callbackContext);
+              }
           }
           else {
               cordova.requestPermission(this, DOWNLOAD_ACTION_PERMISSION_REQ_CODE, WRITE_EXTERNAL_STORAGE);
@@ -97,6 +103,11 @@ public class Downloader extends CordovaPlugin {
     callbackContext.sendPluginResult(pluginResult);
     return true;
   }
+
+  private boolean isFileExists(String filename){
+        File folder = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + filename);
+        return folder.exists();
+    }
     
   public void onDestroy() {
     removeDownloadReceiver();
